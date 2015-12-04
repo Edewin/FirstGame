@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QWidget::showMaximized();
 
     timer = new QTimer(this);
 
@@ -21,25 +22,35 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->setScene(scene);
 
     QPen bluePen(Qt::blue);
+    QPen blackPen(Qt::black);
 
     bluePen.setWidth(lineWidth);
+    blackPen.setWidth(lineWidth+2);
 
     QBrush yellowBrush(Qt::CrossPattern);
+    QBrush blackBrush(Qt::black);
 
     rect = new QRectF();
 
-    rect->setX(10);
-    rect->setY(10);
+    rect->setX(0);
+    rect->setY(0);
     rect->setHeight(100);
     rect->setWidth(100);
 
     yellowBrush.setColor(Qt::yellow);
 
-    yelEllipse = scene->addEllipse(10,10,100,100,bluePen,yellowBrush);
+    yelEllipse = scene->addEllipse(0,0,100,100,bluePen,yellowBrush);
 
-    grayLine =  scene->addLine(0,0,150,150,bluePen);
+    grayLine =  scene->addLine(0,0,30,30,bluePen);
+
+     //create map
+
+    scene->addEllipse(0,0,40,40,blackPen, blackBrush);
+
+    blackLine = scene->addLine(140,140,-140,-140, blackPen);
 
     yelEllipse->setFlag(QGraphicsItem::ItemIsMovable);
+
 }
 
 MainWindow::~MainWindow()
@@ -51,6 +62,7 @@ void MainWindow::on_pushButton_clicked()
 {
     // to do
     grayLine->setRotation(90);
+    blackLine->setRotation( (qrand() % 360) );
 
 }
 

@@ -32,6 +32,7 @@ private:
 
     QGraphicsScene *scene;
     QGraphicsLineItem *grayLine;
+    QGraphicsLineItem *blackLine;
     QGraphicsEllipseItem *yelEllipse;
     QRectF *rect;
 
