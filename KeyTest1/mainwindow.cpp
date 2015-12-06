@@ -16,10 +16,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     scene = new QGraphicsScene(this);
 
+    ui->graphicsView->setScene(scene);
+
+
     deltaX = 0;
     deltaY = 0;
-
-    ui->graphicsView->setScene(scene);
 
     QPen bluePen(Qt::blue);
     QPen blackPen(Qt::black);
@@ -41,13 +42,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     yelEllipse = scene->addEllipse(0,0,100,100,bluePen,yellowBrush);
 
-    grayLine =  scene->addLine(0,0,30,30,bluePen);
+    grayLine =  scene->addLine(0,0,100,130,bluePen);
 
      //create map
 
     scene->addEllipse(0,0,40,40,blackPen, blackBrush);
 
-    blackLine = scene->addLine(140,140,-140,-140, blackPen);
+ //   blackLine = scene->addLine(140,140,-140,-140, blackPen);
 
     yelEllipse->setFlag(QGraphicsItem::ItemIsMovable);
 
