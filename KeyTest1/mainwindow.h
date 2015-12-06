@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QTimer>
+#include <QGraphicsSceneDragDropEvent>
 
 
 namespace Ui {
@@ -47,6 +48,7 @@ private:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent* event);
 
 private:
     Ui::MainWindow *ui;

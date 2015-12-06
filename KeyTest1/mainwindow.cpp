@@ -18,37 +18,43 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->graphicsView->setScene(scene);
 
+    ui->graphicsView->setRenderHint(QPainter::Antialiasing);
+
+    QRectF rectScene(-200,-200,400,800);
+
+    QPen bluePen(Qt::blue);
+    QPen blackPen(Qt::red);
+
+    QBrush yellowBrush(Qt::CrossPattern);
+    QBrush blackBrush(Qt::darkCyan);
+
+    scene->addRect(rectScene);
 
     deltaX = 0;
     deltaY = 0;
 
-    QPen bluePen(Qt::blue);
-    QPen blackPen(Qt::black);
+    QLineF TopLine(scene->sceneRect().topLeft(),scene->sceneRect().topRight());
+    //QLineF
+
+    scene->addLine(TopLine,blackPen);
+
 
     bluePen.setWidth(lineWidth);
     blackPen.setWidth(lineWidth+2);
 
-    QBrush yellowBrush(Qt::CrossPattern);
-    QBrush blackBrush(Qt::black);
-
-    rect = new QRectF();
-
-    rect->setX(0);
-    rect->setY(0);
-    rect->setHeight(100);
-    rect->setWidth(100);
 
     yellowBrush.setColor(Qt::yellow);
 
-    yelEllipse = scene->addEllipse(0,0,100,100,bluePen,yellowBrush);
+    yelEllipse = scene->addEllipse(scene->sceneRect().center().x(),scene->sceneRect().center().y(),100,100,bluePen,yellowBrush);
 
-    grayLine =  scene->addLine(0,0,100,130,bluePen);
+    grayLine =  scene->addLine(100,100,0,0,bluePen);
+    blackLine = scene->addLine(-100,-100,0,0, blackPen);
+
 
      //create map
 
-    scene->addEllipse(0,0,40,40,blackPen, blackBrush);
+    scene->addEllipse(-20,-20,40,40,blackPen, blackBrush);
 
- //   blackLine = scene->addLine(140,140,-140,-140, blackPen);
 
     yelEllipse->setFlag(QGraphicsItem::ItemIsMovable);
 
@@ -63,13 +69,14 @@ void MainWindow::on_pushButton_clicked()
 {
     // to do
     grayLine->setRotation(90);
-    blackLine->setRotation( (qrand() % 360) );
+   // blackLine->setRotation( (qrand() % 360) );
 
 }
 
 void MainWindow::update()
 {
     grayLine->setRotation( angle++ );
+    blackLine->setRotation(angle);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -169,4 +176,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         ui->label->setText("Another key pressed");
         break;
     }
+}
+
+void MainWindow::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
+{
+    qDebug() << "pos: " << event->pos();
+    qDebug() << "scene pos: " << event->scenePos();
 }
