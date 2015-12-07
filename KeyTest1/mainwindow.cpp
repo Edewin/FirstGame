@@ -8,24 +8,47 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     QWidget::showMaximized();
 
-    timer = new QTimer(this);
-
-    connect(timer, SIGNAL( timeout() ), this, SLOT( update()) );
-
-    timer->start(millisec);
-
     scene = new QGraphicsScene(this);
 
     ui->graphicsView->setScene(scene);
 
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
 
-    QRectF rectScene(-200,-200,400,800);
+
+    //start with full health
+    remLife = ui->progressBar->maximum();
+
+    timer = new QTimer(this);
+    advTimer = new QTimer(this);
+    stimer = new QTimer(this);
+
+
+    counter = new QTimer(this);
+
+    time = new QTime(0,0,0,0);
+
+    connect(counter, SIGNAL(timeout()),this, SLOT(count()));
+
+    connect(timer, SIGNAL( timeout() ), this, SLOT( update()) );
+    connect(advTimer,SIGNAL(timeout()), scene, SLOT( advance() ) );
+
+    connect(stimer,SIGNAL(timeout()),this,SLOT(update2()));
+
+    counter->start(50);
+    time->start();
+
+    stimer->start(10);
+
+    timer->start(millisec);
+    advTimer->start(100);
+
+    QRectF rectScene(-200,-200,400,400);
 
     QPen bluePen(Qt::blue);
     QPen blackPen(Qt::red);
 
-    QBrush yellowBrush(Qt::CrossPattern);
+    //QBrush yellowBrush(Qt::CrossPattern);
+    yellowBrush = new QBrush(Qt::CrossPattern);
     QBrush blackBrush(Qt::darkCyan);
 
     scene->addRect(rectScene);
@@ -34,21 +57,26 @@ MainWindow::MainWindow(QWidget *parent) :
     deltaY = 0;
 
     QLineF TopLine(scene->sceneRect().topLeft(),scene->sceneRect().topRight());
-    //QLineF
+    QLineF LeftLine(scene->sceneRect().topLeft(),scene->sceneRect().bottomLeft());
+    QLineF RightLine(scene->sceneRect().topRight(),scene->sceneRect().bottomRight());
+    QLineF BottomLine(scene->sceneRect().bottomLeft(),scene->sceneRect().bottomRight());
 
     scene->addLine(TopLine,blackPen);
+    scene->addLine(LeftLine,blackPen);
+    scene->addLine(RightLine,blackPen);
+    scene->addLine(BottomLine,blackPen);
 
 
     bluePen.setWidth(lineWidth);
     blackPen.setWidth(lineWidth+2);
 
 
-    yellowBrush.setColor(Qt::yellow);
+    yellowBrush->setColor(Qt::yellow);
 
-    yelEllipse = scene->addEllipse(scene->sceneRect().center().x(),scene->sceneRect().center().y(),100,100,bluePen,yellowBrush);
+    yelEllipse = scene->addEllipse(scene->sceneRect().center().x(),scene->sceneRect().center().y(),100,100,bluePen,*yellowBrush);
+    grayLine =  scene->addLine(150,150,0,0,bluePen);
+    blackLine = scene->addLine(-150,-150,0,0, blackPen);
 
-    grayLine =  scene->addLine(100,100,0,0,bluePen);
-    blackLine = scene->addLine(-100,-100,0,0, blackPen);
 
 
      //create map
@@ -75,8 +103,56 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::update()
 {
-    grayLine->setRotation( angle++ );
-    blackLine->setRotation(angle);
+    grayLine->setRotation( ((angle++) + (qrand() % 360) ) );
+    blackLine->setRotation(angle + (qrand() % 360 ));
+}
+
+void MainWindow::update2()
+{
+    ui->label->setText(QString::number(yelEllipse->pos().x()) + ", "  + QString::number(yelEllipse->pos().y()));
+
+    //remove keyboard bug
+    deltaX = yelEllipse->pos().x();
+    deltaY = yelEllipse->pos().y();
+
+    if(yelEllipse->collidesWithItem(grayLine))
+    {
+        ui->label->setText("Collision!!!");
+        yellowBrush->setColor(Qt::red);
+        yellowBrush->setStyle(Qt::SolidPattern);
+        yelEllipse->setBrush(*yellowBrush);
+        ui->progressBar->setValue(remLife--);
+
+        if(remLife <= ui->progressBar->minimum())
+        {
+           QMessageBox msg;
+
+           msg.setText("Game Over!!!");
+           msg.setWindowIcon(QIcon("imgs/programIcon.png"));
+           msg.setWindowTitle("Game Over my Friend!!!!");
+           msg.setIcon(QMessageBox::Information);
+           msg.setInformativeText("you`ve got: " + QString::number( ( (double)time->elapsed() * 0.22) ) + " points");
+           msg.exec();
+
+           //restore full health
+           remLife = ui->progressBar->maximum();
+           ui->progressBar->setValue(remLife);
+
+           time->restart();
+
+        }
+    }
+    else
+    {
+        yellowBrush->setColor(Qt::yellow);
+        yellowBrush->setStyle(Qt::CrossPattern);
+        yelEllipse->setBrush(*yellowBrush);
+    }
+}
+
+void MainWindow::count()
+{
+    ui->labelCounter->setText(QString::number(time->elapsed()));
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -183,3 +259,5 @@ void MainWindow::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
     qDebug() << "pos: " << event->pos();
     qDebug() << "scene pos: " << event->scenePos();
 }
+
+
