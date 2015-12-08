@@ -14,6 +14,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
 
+//    QPixmap pim("./imgs/programIcon.png");
+//    scene->setBackgroundBrush(pim);
+//    //ui->graphicsView->setBackgroundBrush();
+
 
     //start with full health
     remLife = ui->progressBar->maximum();
@@ -53,18 +57,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
     scene->addRect(rectScene);
 
+    /*************************************************************/
+    //init vars
+
+    changingAngle = 0;
+
     deltaX = 0;
     deltaY = 0;
 
-    QLineF TopLine(scene->sceneRect().topLeft(),scene->sceneRect().topRight());
-    QLineF LeftLine(scene->sceneRect().topLeft(),scene->sceneRect().bottomLeft());
-    QLineF RightLine(scene->sceneRect().topRight(),scene->sceneRect().bottomRight());
-    QLineF BottomLine(scene->sceneRect().bottomLeft(),scene->sceneRect().bottomRight());
+    /**************************************************************/
+    TopLine = new QLineF(scene->sceneRect().topLeft(),scene->sceneRect().topRight());
+    LeftLine = new QLineF(scene->sceneRect().topLeft(),scene->sceneRect().bottomLeft());
+    RightLine =  new QLineF(scene->sceneRect().topRight(),scene->sceneRect().bottomRight());
+    BottomLine = new QLineF(scene->sceneRect().bottomLeft(),scene->sceneRect().bottomRight());
 
-    scene->addLine(TopLine,blackPen);
-    scene->addLine(LeftLine,blackPen);
-    scene->addLine(RightLine,blackPen);
-    scene->addLine(BottomLine,blackPen);
+    topB = scene->addLine(*TopLine,blackPen);
+    leftB = scene->addLine(*LeftLine,blackPen);
+    rightB = scene->addLine(*RightLine,blackPen);
+    botB = scene->addLine(*BottomLine,blackPen);
 
 
     bluePen.setWidth(lineWidth);
@@ -73,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     yellowBrush->setColor(Qt::yellow);
 
-    yelEllipse = scene->addEllipse(scene->sceneRect().center().x(),scene->sceneRect().center().y(),100,100,bluePen,*yellowBrush);
+    yelEllipse = scene->addEllipse(18,37,100,100,bluePen,*yellowBrush);
     grayLine =  scene->addLine(150,150,0,0,bluePen);
     blackLine = scene->addLine(-150,-150,0,0, blackPen);
 
@@ -81,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
      //create map
 
-    scene->addEllipse(-20,-20,40,40,blackPen, blackBrush);
+    centerEll = scene->addEllipse(-20,-20,40,40,blackPen, blackBrush);
 
 
     yelEllipse->setFlag(QGraphicsItem::ItemIsMovable);
@@ -103,8 +113,18 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::update()
 {
-    grayLine->setRotation( ((angle++) + (qrand() % 360) ) );
-    blackLine->setRotation(angle + (qrand() % 360 ));
+    angle += 5;
+    grayLine->setRotation(angle);
+    blackLine->setRotation(angle);
+
+//    changingAngle++;
+
+//    if(changingAngle == 2500)
+//    {
+//        changingAngle = 0;
+//        grayLine->setRotation(qrand() % 360);
+//    }
+
 }
 
 void MainWindow::update2()
@@ -115,7 +135,33 @@ void MainWindow::update2()
     deltaX = yelEllipse->pos().x();
     deltaY = yelEllipse->pos().y();
 
-    if(yelEllipse->collidesWithItem(grayLine))
+    ui->lcdNumber->display((double)time->elapsed() * 0.22 );
+
+    if(yelEllipse->collidesWithItem(centerEll) )
+    {
+        gameOver();
+    }
+
+    if(yelEllipse->collidesWithItem(topB))
+    {
+        gameOver();
+    }
+    if(yelEllipse->collidesWithItem(leftB))
+    {
+        gameOver();
+    }
+
+    if(yelEllipse->collidesWithItem(rightB))
+    {
+        gameOver();
+    }
+
+    if(yelEllipse->collidesWithItem(botB))
+    {
+        gameOver();
+    }
+
+    if(!yelEllipse->collidesWithItem(grayLine))
     {
         ui->label->setText("Collision!!!");
         yellowBrush->setColor(Qt::red);
@@ -125,21 +171,7 @@ void MainWindow::update2()
 
         if(remLife <= ui->progressBar->minimum())
         {
-           QMessageBox msg;
-
-           msg.setText("Game Over!!!");
-           msg.setWindowIcon(QIcon("imgs/programIcon.png"));
-           msg.setWindowTitle("Game Over my Friend!!!!");
-           msg.setIcon(QMessageBox::Information);
-           msg.setInformativeText("you`ve got: " + QString::number( ( (double)time->elapsed() * 0.22) ) + " points");
-           msg.exec();
-
-           //restore full health
-           remLife = ui->progressBar->maximum();
-           ui->progressBar->setValue(remLife);
-
-           time->restart();
-
+          gameOver();
         }
     }
     else
@@ -153,6 +185,7 @@ void MainWindow::update2()
 void MainWindow::count()
 {
     ui->labelCounter->setText(QString::number(time->elapsed()));
+
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -258,6 +291,28 @@ void MainWindow::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 {
     qDebug() << "pos: " << event->pos();
     qDebug() << "scene pos: " << event->scenePos();
+}
+
+void MainWindow::gameOver()
+{
+    QMessageBox msg;
+
+    yelEllipse->setPos(18,37);
+
+    msg.setText("Game Over!!!");
+    msg.setWindowIcon(QIcon("imgs/programIcon.png"));
+    msg.setWindowTitle("Game Over my Friend!!!!");
+    msg.setIcon(QMessageBox::Information);
+    msg.setInformativeText("you`ve got: " + QString::number( ( (double)time->elapsed() * 0.22) ) + " points");
+
+    msg.exec();
+
+    //restore full health
+    remLife = ui->progressBar->maximum();
+    ui->progressBar->setValue(remLife);
+
+    time->restart();
+
 }
 
 

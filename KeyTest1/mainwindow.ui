@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>541</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,20 +17,30 @@
    <iconset resource="resources.qrc">
     <normaloff>:/new/prefix1/imgs/programIcon.png</normaloff>:/new/prefix1/imgs/programIcon.png</iconset>
   </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QProgressBar" name="progressBar">
       <property name="maximum">
-       <number>1000</number>
+       <number>100</number>
       </property>
       <property name="value">
-       <number>1000</number>
+       <number>100</number>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="graphicsView"/>
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/new/prefix1/imgs/background-image-1.jpg);</string>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -53,6 +63,17 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QLCDNumber" name="lcdNumber">
+        <property name="font">
+         <font>
+          <pointsize>20</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="labelCounter">
@@ -90,7 +111,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>541</width>
      <height>21</height>
     </rect>
    </property>
